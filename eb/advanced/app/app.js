@@ -1,23 +1,26 @@
-var data = {
-  title: 'Hello World!',
-  selected: null,
-  question: 'In the Battle of Wolf 359 what prominent Miranda-class ship was destroyed?',
-  choices: [
-    'A) USS Defiant',
-    'B) USS Saratoga',
-    'C) USS Yamaguchi',
-    'D) USS Enterprise'
-  ]
+var Data = {
+  questions: {
+    list: [],
+    fetch: function () {
+      m.request({
+        method: "GET",
+        url: "/questions"
+      })
+        .then(function (data) {
+          Data.questions.list = data;
+        })
+    }
+  }
 }
 
 var Choice = {
   click: function(n){
     return function(){
-      data.selected = n
+      Data.selected = n
     }
   },
   classes: function(n){
-    if (data.selected === n){
+    if (Data.selected === n){
       return 'active'
     } else {
       return ''
@@ -27,7 +30,7 @@ var Choice = {
     var n = vnode.attrs.index
     return m('.choice',{ class: Choice.classes(n), onclick: Choice.click(n) },
       m('span.l'),
-      m('span.v',data.choices[n])
+      m('span.v',Data.choices[n])
     )
   }
 }
@@ -36,12 +39,12 @@ var Choice = {
   // const url_path = "/submit";
 
 var App = {
-
+  oninit: Data.questions.fetch,
   submit: function(){
     m.request({
         method: "PUT",
         url: "/submit",
-        body: {selected: data.selected},
+        body: {selected: Data.selected},
     })
     .then(function(data) {
       console.log('data',data)
@@ -49,10 +52,10 @@ var App = {
   },
   view: function() {
     return m('main', [
-      m("h1", data.title),
+      m("h1", Data.title),
       m('article',
         m('h2','Question:'),
-        m('.question',data.question),
+        m('.question',Data.questions),
         m(Choice,{index: 0}),
         m(Choice,{index: 1}),
         m(Choice,{index: 2}),
